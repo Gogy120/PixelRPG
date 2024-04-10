@@ -179,7 +179,7 @@ AnimationClip:
   m_Events:
   - time: 0.75
     functionName: GotoScene
-    data: 
+    data: MainScene
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0

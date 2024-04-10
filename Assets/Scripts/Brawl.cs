@@ -17,6 +17,7 @@ public class Brawl : MonoBehaviour
     public TextMeshProUGUI killsText;
     public TextMeshProUGUI waveText;
 
+
     private enum BrawlState
     {
         IN_PROGRESS,
@@ -41,7 +42,6 @@ public class Brawl : MonoBehaviour
         WaitForSeconds secondDelayWFS = new WaitForSeconds(1);
         for (int i = 5; i > 0; i--)
         {
-            player.chat.Print("Brawl starting in " + i + "...");
             yield return secondDelayWFS;
         }
         while (currentWave < waves)
@@ -66,12 +66,20 @@ public class Brawl : MonoBehaviour
             waveText.text = "Wave: " + currentWave;
             for (int i = 0; i < enemyAmount; i++)
             {
-                GameObject enemy = Instantiate(enemies[Random.Range(0, enemies.Length)], spawnPositions[Random.Range(0, spawnPositions.Length)].position, Quaternion.identity);
-                enemy.GetComponent<Enemy>().Engage();
-                currentEnemies.Add(enemy);
+                SpawnRandomEnemy();
                 yield return enemySpawnDelayWFS;
             }
         }
+    }
+
+    private void SpawnRandomEnemy()
+    {
+        GameObject enemyObj = Instantiate(enemies[Random.Range(0, enemies.Length)], spawnPositions[Random.Range(0, spawnPositions.Length)].position, Quaternion.identity);
+        Enemy enemy = enemyObj.GetComponent<Enemy>();
+        enemy.Engage();
+        enemy.baseMaxHp = (int)(enemy.baseMaxHp * Toolkit.GetEnemyScalingMult());
+        enemy.damage = (int)(enemy.damage * Toolkit.GetEnemyScalingMult());
+        currentEnemies.Add(enemyObj);
     }
 
     private bool AreAllEnemiesDead()

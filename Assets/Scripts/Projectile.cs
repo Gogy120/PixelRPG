@@ -11,20 +11,21 @@ public class Projectile : MonoBehaviour
     public int damage;
     public bool destroyOnHit;
     public float randomOffset;
+    public string sound;
     [Header("Variables-EXPLOSIVE")]
     public float radius;
     public GameObject effect;
     [Header("Variables-DOT")]
-    public int tickDamage;
     public int ticks;
     public float tickSpeed;
-    public Material dotMat;
     [Header("Variables-STUN")]
     public float stunDuration;
     [Header("Variables-SLOW")]
     public float slowDuration;
     public float slowMult;
     public Material slowMat;
+
+    [HideInInspector] public Enemy entity;
 
     private void Start()
     {
@@ -49,9 +50,15 @@ public class Projectile : MonoBehaviour
         {
             if (c.GetComponent<Entity>() != null)
             {
-                c.GetComponent<Entity>().TakeDamage(damage);
+                c.GetComponent<Entity>().TakeDamage(this.gameObject,damage);
             }
         }
         Instantiate(effect,pos,Quaternion.identity);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.collider != null) { Destroy(this.gameObject); }
+
     }
 }

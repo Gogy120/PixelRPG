@@ -15,6 +15,20 @@ public class DialogManager : MonoBehaviour
     private int dialogIndex = -1;
     private WaitForSeconds charDelay = new WaitForSeconds(0.05f);
     private bool isWriting = false;
+    private NPC? collidingNPC = null;
+    private Player player;
+    private void Start()
+    {
+        player = this.GetComponent<Player>();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F) && collidingNPC != null)
+        {
+            StartDialog(collidingNPC.avatar, collidingNPC.dialogs);
+        }
+    }
     public void StartDialog(Sprite avatar,string[] dialogs)
     {
         if (!dialogPanel.activeSelf)
@@ -62,5 +76,24 @@ public class DialogManager : MonoBehaviour
             dialogText.text = currentText;
         }
         isWriting = false;
+    }
+
+    private void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.gameObject.GetComponent<NPC>() != null)
+        {
+            collidingNPC = null;
+            player.useText.gameObject.SetActive(false);
+        }
+    }
+
+    void OnTriggerStay2D(Collider2D col)
+    {
+        if (col.gameObject.GetComponent<NPC>() != null)
+        {
+            NPC npc = col.gameObject.GetComponent<NPC>();
+            collidingNPC = npc;
+            player.useText.gameObject.SetActive(true);
+        }
     }
 }

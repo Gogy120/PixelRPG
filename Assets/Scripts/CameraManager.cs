@@ -6,11 +6,11 @@ public class CameraManager : MonoBehaviour
 {
     public float dampTime = 0.15f;
     public Transform target;
+    public float minZoom = 7f;
+    public float maxZoom = 4.5f;
 
     private Camera cam;
     private float zoomAmount = 0.5f;
-    private const float minZoom = 7f;
-    private const float maxZoom = 4.5f;
     private Vector3 velocity = Vector3.zero;
     private bool isShaking = false;
     private WaitForSeconds shakeDelay = new WaitForSeconds(0.01f);

@@ -6,18 +6,18 @@ public class Occlusion : MonoBehaviour
 {
     public GameObject child;
 
-    private Player player;
+    private Player? player;
     private WaitForSeconds delay = new WaitForSeconds(0.1f);
     private float distance = 12;
 
     void Start()
     {
-        player = GameObject.Find("Player").GetComponent<Player>();
         StartCoroutine(OcclusionLoop());
     }
 
     private IEnumerator OcclusionLoop()
     {
+        player = GameObject.Find("Player").GetComponent<Player>();
         while (true)
         {
             yield return delay;

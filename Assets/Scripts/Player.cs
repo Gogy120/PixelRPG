@@ -4,91 +4,270 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
+using System.Reflection;
 
 public class Player : MonoBehaviour
 {
     #region Variables
-    [Header("Stats")]
-    public int maxHp;
-    [Header("Variables")]
-    public SpriteRenderer bodySpriteRenderer;
+    [Header("Components")]
     public CameraManager cameraManager;
     public TextMeshProUGUI messageText;
     public WeaponHolder weaponHolder;
-    public Material defaultMat;
-    public Material flashMat;
     public Image mainHealthBar;
-    public Transform projectileSpawnPoint;
     public PlayerMovement playerMovement;
     public GameSaveManager gameSaveManager;
     public Chat chat;
     public DialogManager dialogManager;
     public TextMeshProUGUI zoneText;
-    public CharacterManager characterManager;
     public TextMeshPro useText;
+    public InstanceManager instanceManager;
+    public GameObject pausePanel;
+    public TextMeshProUGUI[] characterNameTexts = new TextMeshProUGUI[3];
+    public Image[] characterIcons = new Image[3];
+    public Image[] characterHealthBars = new Image[3];
+    public Image[] abilityIcons = new Image[3];
+    public TextMeshProUGUI[] abilityCooldownTexts = new TextMeshProUGUI[3];
+    public Image[] abilityCooldowns = new Image[3];
+    public Animator weaponAnimator;
+    public TextMeshProUGUI hpBarText;
+    public Image hpBar;
+    public SpriteRenderer weaponSpriteRenderer;
+    public ActionManager actionManager;
+    public BoxCollider2D weaponHitbox;
+    public Material defaultMat;
+    public Material flashMat;
+    public SpriteRenderer bodySpriteRenderer;
+    public Transform projectileSpawnPoint;
+    public GameObject deathScreen;
+    public Image killerSprite;
+    public Animator bodyAnimator;
+    public Tooltip tooltip;
+    public Combo combo;
+    public TextMeshProUGUI characterSwapText;
+    public TextMeshPro interactText;
+    public LevelManager levelManager;
+    public CharacterManager characterManager;
 
-    private bool canUse = true;
-    private const float maxAttackSpeed = 0.05f;
-    private bool isShowingMessage = false;
-    private WaitForSeconds messageCharacterDelay = new WaitForSeconds(0.1f);
-    private WaitForSeconds messageDelay = new WaitForSeconds(1.5f);
-    private WaitForSeconds flashDelay = new WaitForSeconds(0.1f);
+    private WaitForSeconds weaponHitDelay = new WaitForSeconds(0.05f);
     private bool canFlash = true;
-    private const float maxXpCoefficient = 20;
-    private NPC? collidingNPC = null;
-    private UIState uiState = Player.UIState.UNPAUSED;
+    private WaitForSeconds flashDelay = new WaitForSeconds(0.1f);
+    [HideInInspector] public UIState uiState = UIState.UNPAUSED;
+    [HideInInspector] public PlayerState playerState = PlayerState.IDLE;
+    [HideInInspector] public bool immune = false;
+    private GameObject interactableObject;
 
-    private enum UIState
+    public enum UIState
     {
         UNPAUSED,
-        PAUSED
+        PAUSED,
+        GAMEOVER
     }
 
-    #endregion
-    #region Getters & Setters
-    public bool CanUse
+    public enum PlayerState
     {
-        get { return canUse; }
-        set { canUse = value; }
+        IDLE,
+        ATTACKING
     }
-
     #endregion
     private void Start()
     {
-        gameSaveManager.Load();
-        SceneManager.LoadScene(PlayerPrefs.GetString("sceneToLoad", "Tier1_Map1"), LoadSceneMode.Additive);
+        
     }
-
-
     private void Update()
     {
-        //Input
-        if (Input.GetAxis("Mouse ScrollWheel") > 0)
-        {
-            cameraManager.ZoomIn();
-        }
-        else if (Input.GetAxis("Mouse ScrollWheel") < 0)
-        {
-            cameraManager.ZoomOut();
-        }
-        if (Input.GetKeyDown(KeyCode.F) && collidingNPC != null)
-        {
-            dialogManager.StartDialog(collidingNPC.avatar,collidingNPC.dialogs);
-        }
-        if (Input.GetKeyDown(KeyCode.F10)) { Toolkit.GoToScene("EquipmentCharacterSelect"); }
         UpdateUI();
-        Debug.Log(PlayerPrefs.GetInt("Straw Hat_unlocked",0));
     }
 
-    public void TakeDamage(int damage)
+
+    private void PickupLoot(Item droppedLoot)
     {
-        Toolkit.PlaySound("Hurt1", 0.35f, 0.8f, 1f);
-        characterManager.GetCurrentCharacter().hp -= damage;
-        Toolkit.SpawnParticle("Blood", this.transform.position);
-        StartCoroutine(Flash());
-        if (characterManager.GetCurrentCharacter().hp <= 0)
+        Inventory.AddItem(droppedLoot.itemData);
+        Destroy(droppedLoot.gameObject);
+    }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.gameObject.GetComponent<ZoneTrigger>() != null)
         {
-            characterManager.Die();
+            ZoneTrigger zoneTrigger = col.gameObject.GetComponent<ZoneTrigger>();
+            EnterZone(zoneTrigger);
+        }
+        if (col.gameObject.tag == "EnemyProjectile")
+        {
+            Projectile projectile = col.gameObject.GetComponent<Projectile>();
+            TakeDamage(projectile.damage, projectile.entity);
+            Destroy(col.gameObject);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D col)
+    {
+        if (col.gameObject.tag == "Interactable")
+        {
+            interactableObject = null;
+        }
+    }
+
+    private void OnTriggerStay2D(Collider2D col)
+    {
+        if (col.gameObject.tag == "Interactable")
+        {
+            interactableObject = col.gameObject;
+        }
+    }
+
+
+    public void ShakeCamera(float magnitude)
+    {
+        StartCoroutine(cameraManager.Shake(magnitude));
+    }
+
+    private void EnterZone(ZoneTrigger zoneTrigger)
+    {
+        zoneText.text = zoneTrigger.zoneName;
+        zoneText.GetComponent<Animator>().SetTrigger("start");
+    }
+
+    public void Respawn()
+    {
+        Toolkit.GoToScene(PlayerPrefs.GetString("currentScene","Menu"));
+    }
+
+    public void TogglePause(bool toggle)
+    {
+        if (toggle && uiState != UIState.GAMEOVER)
+        {
+            pausePanel.SetActive(true);
+            uiState = UIState.PAUSED;
+            Time.timeScale = 0;
+        }
+        else
+        {
+            Time.timeScale = 1;
+            pausePanel.SetActive(false);
+            uiState = UIState.UNPAUSED;
+        }
+    }
+
+
+    private void UpdateUI()
+    {
+        ICharacter currentCharacter = characterManager.GetCurrentCharacter();
+        hpBarText.text = currentCharacter.hp + "/" + currentCharacter.maxHp;
+        mainHealthBar.fillAmount = (float)((float)currentCharacter.hp / (float)currentCharacter.baseMaxHp);
+        for (int i = 0; i < 3; i++)
+        {
+            characterHealthBars[i].fillAmount = (float)((float)characterManager.characters[i].hp / (float)characterManager.characters[i].baseMaxHp);
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            if (currentCharacter.currentAbilityCooldown[i] > 0)
+            {
+                abilityCooldowns[i].fillAmount = 1;
+                abilityCooldownTexts[i].text = currentCharacter.currentAbilityCooldown[i].ToString();
+            }
+            else { abilityCooldownTexts[i].text = ""; abilityCooldowns[i].fillAmount = 0; }
+        }
+        if (interactableObject != null)
+        {
+            if (interactableObject.GetComponent<Item>() != null)
+            {
+                interactText.text = "[F] Pickup item";
+            }
+            else
+            {
+                interactText.text = "";
+            }
+        }
+        else
+        {
+            interactText.text = "";
+        }
+    }
+
+    public void Attack()
+    {
+        if (playerState == PlayerState.IDLE)
+        {
+            playerState = PlayerState.ATTACKING;
+            weaponAnimator.speed = 1 / characterManager.GetCurrentCharacter().GetAttackSpeed();
+            weaponAnimator.SetTrigger("attack1");
+        }
+    }
+    public void Hit()
+    {
+        StartCoroutine(HitIEnum());
+    }
+    private IEnumerator HitIEnum()
+    {
+        weaponHitbox.enabled = true;
+        weaponHitbox.offset = new Vector2(weaponHitbox.offset.x * -1f, 0);
+        yield return weaponHitDelay;
+        weaponHitbox.enabled = false;
+    }
+
+    public void EndAction()
+    {
+        playerState = PlayerState.IDLE;
+        playerMovement.CanMove = true;
+        weaponAnimator.speed = 1;
+    }
+    public void Die(Enemy killer)
+    {
+        characterManager.GetCurrentCharacter().isDead = true;
+        if (GetDeadCharactersAmount() < 3)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (!characterManager.characters[i].isDead)
+                {
+                    characterManager.SwapCharacter(i);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            GameOver(killer);
+        }
+    }
+
+    private void GameOver(Enemy killer)
+    {
+        if (uiState != UIState.GAMEOVER)
+        {
+            uiState = UIState.GAMEOVER;
+            bodySpriteRenderer.sprite = null;
+            weaponSpriteRenderer.sprite = null;
+            deathScreen.gameObject.SetActive(true);
+            killerSprite.sprite = Resources.Load<Sprite>("Sprites/Enemies/" + killer.name + "/" + killer.name + "_Idle1");
+        }
+    }
+
+    private int GetDeadCharactersAmount()
+    {
+        int count = 0;
+        foreach (ICharacter c in characterManager.characters)
+        {
+            if (c.isDead) { count++; }
+        }
+        return count;
+    }
+
+    public void TakeDamage(int damage, Enemy killer)
+    {
+        if (!immune)
+        {
+            ICharacter currentCharacter = characterManager.GetCurrentCharacter();
+            Toolkit.PlaySound("Hurt1", 0.35f, 0.8f, 1f);
+            currentCharacter.hp -= damage;
+            Toolkit.SpawnParticle("Blood", this.transform.position);
+            Toolkit.SpawnText(damage.ToString(),new Vector2(this.transform.position.x,this.transform.position.y+0.5f),new Color32(255,0,0,255));
+            StartCoroutine(Flash());
+            if (currentCharacter.hp <= 0)
+            {
+                Die(killer);
+            }
         }
     }
 
@@ -106,100 +285,15 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void Die(int index)
+    public void Interact()
     {
-
-    }
-
-
-    public IEnumerator ShowMessage(string message)
-    {
-        string text = "";
-        if (!isShowingMessage)
+        if (interactableObject != null)
         {
-            isShowingMessage = true;
-            foreach (char c in message)
+            if (interactableObject.GetComponent<Item>() != null)
             {
-                text += c;
-                messageText.text = text;
-                if (c != ' ') { yield return messageCharacterDelay; }
+                PickupLoot(interactableObject.GetComponent<Item>());
+                return;
             }
-            yield return messageDelay;
-            messageText.text = "";
-            isShowingMessage = false;
         }
-    }
-
-    private void PickupLoot(Collider2D col)
-    {
-        DroppedLoot dp = col.GetComponent<DroppedLoot>();
-        if (PlayerPrefs.GetInt(dp.lootName + "_unlocked", 0) == 0)
-        {
-            chat.Print("Looted: " + dp.lootName);
-            PlayerPrefs.SetInt(dp.lootName + "_unlocked", 1);
-        }
-        else
-        {
-            chat.Print(dp.lootName + " is already owned!");
-        }
-        Destroy(col.gameObject);
-    }
-
-    private void OnTriggerEnter2D(Collider2D col)
-    {
-        if (col.gameObject.tag == "EnemyProjectile")
-        {
-            TakeDamage(col.gameObject.GetComponent<Projectile>().damage);
-            Destroy(col.gameObject);
-        }
-        if (col.gameObject.tag == "DroppedLoot")
-        {
-            PickupLoot(col);
-        }
-        if (col.gameObject.GetComponent<ZoneTrigger>() != null)
-        {
-            ZoneTrigger zoneTrigger = col.gameObject.GetComponent<ZoneTrigger>();
-            EnterZone(zoneTrigger);
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D col)
-    {
-        if (col.gameObject.tag == "Object")
-        {
-            SpriteRenderer spriteRenderer = col.gameObject.GetComponentInChildren<SpriteRenderer>();
-            spriteRenderer.color = new Color32(255, 255, 255, 255);
-        }
-        if (col.gameObject.tag == "NPC")
-        {
-            collidingNPC = null;
-            useText.gameObject.SetActive(false);
-        }
-    }
-
-    void OnTriggerStay2D(Collider2D col)
-    {
-        if (col.gameObject.tag == "NPC")
-        {
-            collidingNPC = col.gameObject.GetComponent<NPC>();
-            useText.gameObject.SetActive(true);
-        }
-    }
-
-    public void ShakeCamera(float magnitude)
-    {
-        StartCoroutine(cameraManager.Shake(magnitude));
-    }
-
-
-    public void UpdateUI()
-    {
-
-    }
-
-    private void EnterZone(ZoneTrigger zoneTrigger)
-    {
-        zoneText.text = zoneTrigger.zoneName;
-        zoneText.GetComponent<Animator>().SetTrigger("start");
     }
 }

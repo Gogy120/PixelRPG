@@ -10,8 +10,13 @@ public class AnimationEvents : MonoBehaviour
         Destroy(this.gameObject);
     }
 
-    public void GotoScene()
+    public void DisableItself()
     {
-        SceneManager.LoadScene(PlayerPrefs.GetString("scene_to_load","Menu"));
+        this.gameObject.SetActive(false);
+    }
+
+    public void GotoScene(string scene)
+    {
+        SceneManager.LoadScene(scene);
     }
 }

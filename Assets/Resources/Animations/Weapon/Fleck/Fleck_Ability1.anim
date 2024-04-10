@@ -210,12 +210,19 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.16666667
-    functionName: Fleck_ShootRocket
-    data: 
+  - time: 0.083333336
+    functionName: PlaySound
+    data: MissileLaunch
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
+    messageOptions: 0
+  - time: 0.16666667
+    functionName: ExecuteAbility
+    data: ShootRocketLauncher
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 1
     messageOptions: 0
   - time: 0.16666667
     functionName: ShakeCamera
@@ -232,7 +239,7 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 0.5
-    functionName: End
+    functionName: EndAction
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

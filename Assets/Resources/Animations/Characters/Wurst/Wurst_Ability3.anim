@@ -67,11 +67,11 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
-    functionName: Wurst_Fart
-    data: 
+    functionName: ExecuteAbility
+    data: Fart
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 0
+    intParameter: 3
     messageOptions: 0
   - time: 0
     functionName: PlaySound

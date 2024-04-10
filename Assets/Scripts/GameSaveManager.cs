@@ -1,52 +1,126 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 
 public class GameSaveManager : MonoBehaviour
 {
     private Player player;
-    public CharacterManager characterManager;
 
     private void Start()
     {
-        player = this.gameObject.GetComponent<Player>();
-       // characterManager = this.gameObject.GetComponent<CharacterManager>();
+        player = this.GetComponent<Player>();
+        Load();
     }
     public void Load()
     {
-        LoadVariables();
+        //LoadVariables();
         //Load character icons and names
+        player.characterManager.characters = player.gameSaveManager.LoadCharacters();
         for (int i = 0; i < 3; i++)
         {
-            characterManager.characterIcons[i].sprite = characterManager.characters[i].GetIconSprite();
-            characterManager.characterNameTexts[i].text = characterManager.characters[i].name;
+            player.characterIcons[i].sprite = player.characterManager.characters[i].GetIconSprite();
+            player.characterNameTexts[i].text = player.characterManager.characters[i].name;
         }
-        characterManager.SwapCharacter(0);
+        player.characterManager.SwapCharacter(0);
+        SceneManager.LoadScene(PlayerPrefs.GetString("current_map", "Brawl1"), LoadSceneMode.Additive);
     }
 
     private void LoadVariables()
     {
-        //player.Level = PlayerPrefs.GetInt("level", 1);
-       // player.Xp = PlayerPrefs.GetInt("xp", 0);
-        string[] chars = { "Wurst", "Viktor", "Fleck" };
+        string[] chars = { "Wurst", "Fleck", "Viktor" };
         for (int i = 0; i < 3; i++)
         {
             PlayerPrefs.SetString("character_" + i, chars[i]);
         }
         for (int i = 0; i < 3; i++)
         {
-            characterManager.characters[i] = CharacterDatabase.GetCharacter(PlayerPrefs.GetString("character_" + i,"Wurst"));
+            ICharacter character = CharacterDatabase.GetCharacter(PlayerPrefs.GetString("character_" + i, "Wurst"), player);
+            player.characterManager.characters[i] = character;
         }
-        
-        /*
-        player.Characters[0] = CharacterDatabase.GetCharacter("Wurst");
-        player.Characters[1] = CharacterDatabase.GetCharacter("Viktor");
-        player.Characters[2] = CharacterDatabase.GetCharacter("Fleck");
-        */
     }
 
-    private void SaveVariables()
+    public static string[] LoadCharacterString()
     {
-   
+        string[] characters = new string[3];
+        for (int i = 0; i < characters.Length; i++)
+        {
+            string defaultCharacter = "Wurst";
+            if (i == 1) { defaultCharacter = "Schmalz"; }
+            else if (i == 2) { defaultCharacter = "Fleck"; }
+            characters[i] = PlayerPrefs.GetString("character_" + i, defaultCharacter);
+        }
+        return characters;
+    }
+
+    public ICharacter[] LoadCharacters()
+    {
+        ICharacter[] characters = new ICharacter[3];
+        for (int i = 0; i < 3; i++)
+        {
+            string defaultCharacter = "Wurst";
+            if (i == 1) { defaultCharacter = "Viktor"; }
+            else if (i == 2) { defaultCharacter = "Fleck"; }
+            ICharacter character = CharacterDatabase.GetCharacter(PlayerPrefs.GetString("character_" + i, defaultCharacter), player);
+            characters[i] = character;
+        }
+        return characters;
+    }
+
+    public static Item GetEquippedItem(string characterName, ItemData.SlotType slotType)
+    {
+        string itemJson = PlayerPrefs.GetString($"{characterName}_{slotType.ToString()}", "Null");
+        if (itemJson.Equals("Null"))
+        {
+            return null;
+        }
+        ItemData itemData = JsonConvert.DeserializeObject<ItemData>(itemJson);
+        Item item = new Item(itemData);
+        return item;
+    }
+
+    public static ItemData GetEquippedItemData(string characterName, ItemData.SlotType slotType)
+    {
+        string itemJson = PlayerPrefs.GetString($"{characterName}_{slotType.ToString()}", "Null");
+        if (itemJson.Equals("Null"))
+        {
+            return null;
+        }
+        ItemData itemData = JsonConvert.DeserializeObject<ItemData>(itemJson);
+        return itemData;
+    }
+
+    public void Save()
+    {
+       // PlayerPrefs.SetString("currentScene", SceneManager.GetAllScenes()[1].name);
+        PlayerPrefs.SetFloat("posX",this.transform.position.x);
+        PlayerPrefs.SetFloat("posY",this.transform.position.y);
+    }
+
+    private void OnApplicationQuit()
+    {
+        Save();
+    }
+
+    public static Dictionary<string, KeyCode> LoadKeyBinds(Dictionary<string,KeyCode> keyBinds)
+    {
+        Dictionary<string, KeyCode> loadedKeyBinds = new Dictionary<string, KeyCode>();
+        foreach (KeyValuePair<string, KeyCode> kvp in keyBinds)
+        {
+            KeyCode loadedKey;
+            if (Enum.TryParse(PlayerPrefs.GetString(kvp.Key + "_key","default"), out loadedKey))
+            {
+
+            }
+            else
+            {
+                loadedKey = kvp.Value;
+            }
+            loadedKeyBinds.Add(kvp.Key, loadedKey);
+        }
+        return loadedKeyBinds;
     }
 }

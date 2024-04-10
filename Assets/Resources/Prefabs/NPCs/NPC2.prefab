@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 4727962642195479546}
   - component: {fileID: 2061997525125486575}
   - component: {fileID: 3161071853253577291}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: NPC2
   m_TagString: NPC
   m_Icon: {fileID: 0}
@@ -30,7 +30,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 307126523450237798}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.75, y: -1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

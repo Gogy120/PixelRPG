@@ -9,7 +9,6 @@ public class EquipmentCharacterSelect : MonoBehaviour
 {
     public Animator[] characterAnimators = new Animator[3];
     public TextMeshProUGUI[] characterNameTexts = new TextMeshProUGUI[3];
-
     private string[] characterNames = new string[3];
     void Start()
     {
@@ -23,13 +22,13 @@ public class EquipmentCharacterSelect : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F10)) { Toolkit.GoToScene("MainScene"); }
+        if (Input.GetKeyDown(KeyCode.F10)) { Toolkit.GoToMap("MainScene"); }
         if (Input.GetKeyDown(KeyCode.F12)) { PlayerPrefs.DeleteAll(); }
     }
 
     public void SelectCharacter(int index)
     {
         PlayerPrefs.SetString("equipment_selected_character", characterNames[index]);
-        Toolkit.GoToScene("CharacterEquipment");
+        Toolkit.GoToMap("CharacterEquipment");
     }
 }

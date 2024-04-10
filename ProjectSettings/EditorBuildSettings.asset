@@ -6,17 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: 971f40cc14258c749bad94277ba33091
+  - enabled: 1
     path: Assets/Scenes/MainScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
-    path: Assets/Scenes/EquipmentCharacterSelect.unity
-    guid: e46d9f5673434124599b501c7e735d10
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/TestMap.unity
     guid: d6243da8cb8b4b6408698c2a6a0449b9
-  - enabled: 1
-    path: Assets/Scenes/CharacterEquipment.unity
-    guid: af86cc28ace1d234885c428cc56014c2
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
     path: Assets/Scenes/GearList.unity
     guid: b713d1b684708db4c9b2717cc68878bc
@@ -24,6 +27,18 @@ EditorBuildSettings:
     path: Assets/Scenes/Tier1_Map1.unity
     guid: fbc066236cdae75479a3a41dc223f429
   - enabled: 1
-    path: Assets/Scenes/Brawl1.unity
+    path: Assets/Scenes/Brawl2.unity
     guid: 6fc24e03623fc81448318486e52f6c28
+  - enabled: 1
+    path: Assets/Scenes/Home.unity
+    guid: 0ee9f84c2657b4942bc5f3dff43e08a2
+  - enabled: 1
+    path: Assets/Scenes/Brawl1.unity
+    guid: fd26cff26fdb9c74283ce86ecb69fb57
+  - enabled: 1
+    path: Assets/Scenes/CharacterEquipMenu.unity
+    guid: 01916a487f592ba48a6f3aca6a0710fd
+  - enabled: 1
+    path: Assets/Scenes/BrawlMenu.unity
+    guid: d6af00bcb995fc34eb8b4ac1d5000b4b
   m_configObjects: {}

@@ -2,90 +2,111 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System;
 
-public class EquipmentManager : MonoBehaviour
+public class EquipmentManager 
 {
     private string characterName;
-    private Dictionary<Gear.SlotType, Gear> gear = new Dictionary<Gear.SlotType, Gear>()
+    private Dictionary<ItemData.SlotType, ItemData> gear = new Dictionary<ItemData.SlotType, ItemData>()
     {
-        { Gear.SlotType.Head,GearDatabase.GetGear("No Head")},
-        { Gear.SlotType.Chest,GearDatabase.GetGear("No Chest")},
-        { Gear.SlotType.Legs,GearDatabase.GetGear("No Legs")}
+        { ItemData.SlotType.Head,null},
+        { ItemData.SlotType.Chest,null},
+        { ItemData.SlotType.Legs,null}
     };
 
     public EquipmentManager(string characterName)
     {
         this.characterName = characterName;
+        Load();
     }
 
-    public void Equip(Gear.SlotType slot, Gear item)
-    {
-        gear[slot] = item;
-        Save();
-    }
 
     public int GetTotalHP()
     {
         int hp =  0;
-        foreach (KeyValuePair<Gear.SlotType, Gear> kvp in gear)
+        foreach (KeyValuePair<ItemData.SlotType, ItemData> kvp in gear)
         {
-            hp += kvp.Value.hp;
+            if (kvp.Value == null)
+            {
+                hp += 0;
+            }
+            else
+            {
+                hp += kvp.Value.hp;
+            }
         }
         return hp;
     }
 
-    public int GetTotalDamage()
+    public int GetTotalPhysicalDamage()
     {
         int damage = 0;
-        foreach (KeyValuePair<Gear.SlotType, Gear> kvp in gear)
+        foreach (KeyValuePair<ItemData.SlotType, ItemData> kvp in gear)
         {
-            damage += kvp.Value.damage;
+            if (kvp.Value == null)
+            {
+                damage += 0;
+            }
+            else
+            {
+                damage += kvp.Value.physicalDamage;
+            }
         }
         return damage;
     }
-    public int[] GetTotalAbilityPower()
+    public int GetTotalMagicDamage()
     {
-        int[] abilityPower = new int[3] { 0, 0, 0 };
-        foreach (KeyValuePair<Gear.SlotType, Gear> kvp in gear)
+        int damage = 0;
+        foreach (KeyValuePair<ItemData.SlotType, ItemData> kvp in gear)
         {
-            for (int i = 0; i < abilityPower.Length; i++)
+            if (kvp.Value == null)
             {
-                abilityPower[i] += kvp.Value.abilityPower[i];
+                damage += 0;
+            }
+            else
+            {
+                damage += kvp.Value.magicDamage;
             }
         }
-        return abilityPower;
+        return damage;
     }
     public float GetTotalAttackSpeed()
     {
         float attackSpeed = 0;
-        foreach (KeyValuePair<Gear.SlotType, Gear> kvp in gear)
+        foreach (KeyValuePair<ItemData.SlotType, ItemData> kvp in gear)
         {
-            attackSpeed += kvp.Value.attackSpeed;
+            if (kvp.Value == null)
+            {
+                attackSpeed += 0;
+            }
+            else
+            {
+                attackSpeed += kvp.Value.attackSpeed;
+            }
         }
         return attackSpeed;
     }
 
     public void PrintGearInfo()
     {
-        foreach (KeyValuePair<Gear.SlotType, Gear> kvp in gear)
+        ItemData.SlotType[] slotTypes = (ItemData.SlotType[])Enum.GetValues(typeof(ItemData.SlotType));
+        foreach (KeyValuePair<ItemData.SlotType,ItemData> kvp in gear)
         {
-            Debug.Log(kvp.Value.ToString());
+            if (kvp.Value != null)
+            {
+                Debug.Log(kvp.Value.name);
+            }
         }
     }
 
     public void Load()
     {
-        gear[Gear.SlotType.Head] = GearDatabase.GetGear(PlayerPrefs.GetString(characterName + "_Head", "No Head"));
-        gear[Gear.SlotType.Chest] = GearDatabase.GetGear(PlayerPrefs.GetString(characterName + "_Chest", "No Chest"));
-        gear[Gear.SlotType.Legs] = GearDatabase.GetGear(PlayerPrefs.GetString(characterName + "_Legs", "No Legs"));
-    }
-
-    public void Save()
-    {
-        foreach (KeyValuePair<Gear.SlotType, Gear> kvp in gear)
+        ItemData.SlotType[] slotTypes = (ItemData.SlotType[])Enum.GetValues(typeof(ItemData.SlotType));
+        foreach (ItemData.SlotType slotType in slotTypes)
         {
-            PlayerPrefs.SetString(characterName + "_" + kvp.Key,kvp.Value.name);
+            ItemData item = GameSaveManager.GetEquippedItemData(characterName, slotType);
+            gear[slotType] = item;        
         }
+        PrintGearInfo();
     }
-
 }

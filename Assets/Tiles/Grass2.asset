@@ -9,28 +9,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
+  m_Script: {fileID: 11500000, guid: 13b75c95f34a00d4e8c04f76b73312e6, type: 3}
   m_Name: Grass2
   m_EditorClassIdentifier: 
-  m_Sprite: {fileID: 21300000, guid: 32f50abb2fc074146b70c1cfeeb35f16, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Transform:
-    e00: 1
-    e01: 0
-    e02: 0
-    e03: 0
-    e10: 0
-    e11: 1
-    e12: 0
-    e13: 0
-    e20: 0
-    e21: 0
-    e22: 1
-    e23: 0
-    e30: 0
-    e31: 0
-    e32: 0
-    e33: 1
-  m_InstancedGameObject: {fileID: 0}
-  m_Flags: 1
-  m_ColliderType: 1
+  m_AnimatedSprites:
+  - {fileID: 21300000, guid: 5414ad95b9de1c748b7d7ce8fa62c223, type: 3}
+  - {fileID: 21300000, guid: b9141f4cc8a6e5c439082f7a591ac796, type: 3}
+  - {fileID: 21300000, guid: fb1816272980984429e11c87786dd5b5, type: 3}
+  - {fileID: 21300000, guid: 2b86f8100e04650488075aa10deb9a92, type: 3}
+  m_MinSpeed: 2
+  m_MaxSpeed: 3
+  m_AnimationStartTime: 0
+  m_AnimationStartFrame: 0
+  m_TileColliderType: 0

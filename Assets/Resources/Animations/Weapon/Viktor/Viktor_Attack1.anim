@@ -386,8 +386,8 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
-    functionName: ShootProjectile
-    data: Bullet
+    functionName: ExecuteAttack
+    data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
@@ -406,6 +406,13 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
+  - time: 0
+    functionName: PlaySound
+    data: Shot1
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.25
     functionName: ChangeWeaponSpriteToDefault
     data: 
@@ -414,7 +421,7 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 1
-    functionName: End
+    functionName: EndAction
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

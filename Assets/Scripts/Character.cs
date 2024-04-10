@@ -15,6 +15,7 @@ public class Character : MonoBehaviour
     public int[] currentAbilityCooldown = new int[3];
     public int maxHp;
     public bool hasSwitched = false;
+    public bool isDead = false;
     public EquipmentManager equipmentManager;
 
     public Character(string name, string description, int baseMaxHp, int damage, float attackSpeed, int[] abilityCooldown, int[] abilityDamage)
@@ -29,7 +30,6 @@ public class Character : MonoBehaviour
         this.maxHp = baseMaxHp;
         this.hp = maxHp;
         equipmentManager = new EquipmentManager(name);
-        equipmentManager.Load();
     }
 
     public RuntimeAnimatorController GetBodyAnimatorController()
@@ -57,9 +57,9 @@ public class Character : MonoBehaviour
         return Resources.Load<Sprite>("Sprites/UI/AbilityIcons/" + name + "_Ability" + ability);
     }
 
-    public void Print()
+    public override string ToString()
     {
-        Debug.Log(name + "|" + description + "|" + baseMaxHp + "|" + damage);
+        return name + "|" + description + "|" + baseMaxHp + "|" + damage;
     }
 
     public IEnumerator StartAbilityCooldown(int ability)

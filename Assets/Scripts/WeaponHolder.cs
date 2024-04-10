@@ -9,13 +9,8 @@ public class WeaponHolder : MonoBehaviour
     public GameObject myPlayer;
     [HideInInspector] public float rotationZ;
     [HideInInspector] public bool flipped = false;
-    private bool isLocked = false;
+    [HideInInspector] public bool isLocked = false;
 
-    public bool IsLocked
-    {
-        get { return isLocked; }
-        set { isLocked = value; }
-    }
 
     void Update()
     {

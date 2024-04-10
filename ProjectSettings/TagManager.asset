@@ -10,18 +10,21 @@ TagManager:
   - EnemyProjectile
   - DroppedLoot
   - NPC
+  - InventorySlot
+  - Interactable
+  - ItemCard
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Obscale
   - Water
   - UI
   - Entity
   - Player
-  - 
-  - 
-  - 
+  - Zone
+  - PlayerHitbox
+  - Terrain
   - 
   - 
   - 
@@ -46,4 +49,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UI
+    uniqueID: 275669725
     locked: 0
